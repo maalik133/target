@@ -95,21 +95,46 @@ main{max-width:480px;margin:0 auto;padding:0 18px 86px}
 </main>
 
 <div class="cta-wrap">
-  <a class="cta" href="https://giftclick.org/aff_c?offer_id=1146&amp;aff_id=170653&amp;source=tiktok">Continue to Next Step →</a>
+  <a id="offerCta" class="cta" href="https://giftclick.org/aff_c?offer_id=1146&amp;aff_id=170653&amp;source=tiktok">Continue to Next Step →</a>
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-  const campid = new URLSearchParams(window.location.search).get('campid');
+(function () {
+  const BASE_OFFER_URL = 'https://giftclick.org/aff_c?offer_id=1146&aff_id=170653&source=tiktok';
 
-  if (!campid) return;
+  function getCampId() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('campid');
+  }
 
-  document.querySelectorAll('a[href*="giftclick.org/aff_c"]').forEach(function (link) {
-    const offerUrl = new URL(link.href);
-    offerUrl.searchParams.set('source', campid);
-    link.href = offerUrl.toString();
+  function buildOfferUrl() {
+    const campid = getCampId();
+    const offerUrl = new URL(BASE_OFFER_URL);
+
+    if (campid && campid.trim() !== '') {
+      offerUrl.searchParams.set('source', campid.trim());
+    }
+
+    return offerUrl.toString();
+  }
+
+  function updateCta() {
+    const cta = document.getElementById('offerCta');
+    if (!cta) return;
+    cta.href = buildOfferUrl();
+  }
+
+  document.addEventListener('DOMContentLoaded', updateCta);
+
+  document.addEventListener('click', function (event) {
+    const cta = event.target.closest('#offerCta');
+    if (!cta) return;
+
+    // Rebuild immediately before navigation so the current campid
+    // is guaranteed to be used on the outbound affiliate click.
+    cta.href = buildOfferUrl();
   });
-});
+})();
 </script>
 </body>
 </html>
